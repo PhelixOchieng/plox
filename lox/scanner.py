@@ -4,6 +4,26 @@ from .token import Token, TokenType
 from .errors import err
 
 
+keywords = {
+    "and":    TokenType.AND,
+    "class":  TokenType.CLASS,
+    "else":   TokenType.ELSE,
+    "false":  TokenType.FALSE,
+    "for":    TokenType.FOR,
+    "fun":    TokenType.FUN,
+    "if":     TokenType.IF,
+    "nil":    TokenType.NIL,
+    "or":     TokenType.OR,
+    "print":  TokenType.PRINT,
+    "return": TokenType.RETURN,
+    "super":  TokenType.SUPER,
+    "this":   TokenType.THIS,
+    "true":   TokenType.TRUE,
+    "var":    TokenType.VAR,
+    "while":  TokenType.WHILE,
+}
+
+
 class Scanner:
     _tokens: List[Token] = []
     _start = 0
@@ -49,6 +69,14 @@ class Scanner:
             return '\0'
         return self.source[self._current + 1]
 
+    def _scan_comments(self) -> None:
+        # TODO: Add support for block comments /* ... */ with support for nesting
+        if self._match('/'):
+            while self._peek() != '\n' and not self._is_at_end():
+                self._advance()
+        else:
+            self._add_token(TokenType.SLASH)
+
     def _scan_string(self) -> None:
         while self._peek() != '"' and not self._is_at_end():
             if self._peek() == '\n':
@@ -88,6 +116,23 @@ class Scanner:
         num = self.source[self._start:self._current]
         self._add_token(TokenType.NUMBER, float(num))
 
+    def _is_alpha(self, char: str) -> bool:
+        return char == '_' or 'a' <= char <= 'z' or 'A' <= char <= 'Z'
+
+    def _is_aplhanumeric(self, char: str) -> bool:
+        return self._is_alpha(char) or self._is_digit(char)
+
+    def _scan_identifier(self) -> None:
+        while self._is_aplhanumeric(self._peek()):
+            self._advance()
+
+        text = self.source[self._start:self._current]
+        token_type = keywords.get(text)
+        if not token_type:
+            token_type = TokenType.IDENTIFIER
+
+        self._add_token(token_type)
+
     def _scan_token(self) -> None:
         char = self._advance()
         if char == '(':
@@ -123,11 +168,7 @@ class Scanner:
             self._add_token(TokenType.GREATER_EQUAL if self._match(
                 '=') else TokenType.GREATER)
         elif char == '/':
-            if self._match('/'):
-                while self._peek() != '\n' and not self._is_at_end():
-                    self._advance()
-            else:
-                self._add_token(TokenType.SLASH)
+            self._scan_comments()
         elif char == ' ' or char == '\r' or char == '\t':
             # Ignore whitespace
             pass
@@ -137,6 +178,8 @@ class Scanner:
             self._scan_string()
         elif self._is_digit(char):
             self._scan_number()
+        elif self._is_alpha(char):
+            self._scan_identifier()
         else:
             self._err.error(self._line, f"Unexpected character. '{char}'")
 
