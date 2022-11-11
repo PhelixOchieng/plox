@@ -2,7 +2,7 @@
 import sys
 
 
-class Err:
+class Error:
     had_error = False
 
     def error(self, line: int, message: str) -> None:
@@ -20,4 +20,4 @@ class Err:
         self.had_error = True
 
 
-err = Err()
+err = Error()
