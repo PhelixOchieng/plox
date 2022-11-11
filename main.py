@@ -2,8 +2,10 @@ import argparse
 import sys
 import os
 
-from lox.scanner import Scanner
 from lox.errors import err
+from lox.ast_printer import AstPrinter
+from lox.scanner import Scanner
+from lox.parser import Parser
 
 
 def run_file(filepath: str) -> None:
@@ -49,8 +51,14 @@ def run(source: str) -> None:
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    for token in tokens:
-        print(token)
+    parser = Parser(tokens)
+    expression = parser.parse()
+
+    if expression == None or err.had_error:
+        return
+
+    printer = AstPrinter()
+    print(printer.print(expression))
 
 
 def main():

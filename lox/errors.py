@@ -1,6 +1,8 @@
 
 import sys
 
+from lox.token import Token, TokenType
+
 
 class Error:
     had_error = False
@@ -18,6 +20,12 @@ class Error:
         '''
         sys.stderr.write(f'[line {line}] Error {where}: {message}\n')
         self.had_error = True
+
+    def error_token(self, token: Token, err_msg: str) -> None:
+        if token.type is TokenType.EOF:
+            self.report(token.line, ' at end', err_msg)
+        else:
+            self.report(token.line, f" at '{token.lexeme}'", err_msg)
 
 
 err = Error()
