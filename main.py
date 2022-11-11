@@ -58,12 +58,12 @@ def run(source: str) -> None:
     tokens = scanner.scan_tokens()
 
     parser = Parser(tokens)
-    expression = parser.parse()
+    statements = parser.parse()
 
-    if expression == None or err.had_error:
+    if err.had_error:
         return
 
-    interpreter.interpret(expression)
+    interpreter.interpret(statements)
 
 
 def main():

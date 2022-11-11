@@ -82,10 +82,10 @@ def main():
     args = parser.parse_args()
     output_dir = args.dir
     define_ast(output_dir, "Expr", [
-        "Binary   -> left: Expr, operator: Token, right: Expr",
-        "Grouping -> expression: Expr",
-        "Literal  -> value: Any",
-        "Unary    -> operator: Token, right: Expr"
+        'Binary   -> left: Expr, operator: Token, right: Expr',
+        'Grouping -> expression: Expr',
+        'Literal  -> value: Any',
+        'Unary    -> operator: Token, right: Expr'
     ],
         imports='''\
 from typing import Any
@@ -94,7 +94,14 @@ from lox.token import Token
 '''
     )
 
-    print(args)
+    define_ast(output_dir, 'Stmt', [
+        'Expression  -> expression: Expr',
+        'Print       -> expression: Expr',
+    ],
+        imports='''\
+from lox.expr import Expr
+'''
+    )
 
 
 if __name__ == '__main__':

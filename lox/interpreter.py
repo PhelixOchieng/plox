@@ -1,16 +1,28 @@
+from typing import List
+
 from lox import expr as Expr
+from lox import stmt
 from lox.token import TokenType, Token
 from lox.errors import err, LoxRuntimeException
 
 
-class Interpreter(Expr.Visitor):
+class Interpreter(Expr.Visitor, stmt.Visitor):
 
-    def interpret(self, expr: Expr.Expr):
+    def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
-            value = self._evaluate(expr)
-            print(self._stringify(value))
+            for statement in statements:
+                self._execute(statement)
         except LoxRuntimeException as e:
             err.runtime_error(e)
+
+    def visit_expression_stmt(self, stmt: stmt.Expression) -> None:
+        self._evaluate(stmt.expression)
+        return None
+
+    def visit_print_stmt(self, stmt: stmt.Print) -> None:
+        value = self._evaluate(stmt.expression)
+        print(self._stringify(value))
+        return None
 
     def visit_literal_expr(self, expr: Expr.Literal):
         return expr.value
@@ -71,6 +83,9 @@ class Interpreter(Expr.Visitor):
                 expr.operator, "Operands must be two numbers or two strings.")
 
         return None
+
+    def _execute(self, statement: stmt.Stmt) -> None:
+        statement.accept(self)
 
     def _stringify(self, value) -> str:
         if value == None:
