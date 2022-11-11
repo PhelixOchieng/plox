@@ -130,7 +130,7 @@ class Parser:
         return expr
 
     def _unary(self) -> Expr:
-        if self._match(TokenType.BANG, TokenType.EQUAL):
+        if self._match(TokenType.BANG, TokenType.MINUS):
             operator = self._previous()
             right = self._unary()
             return Unary(operator, right)
