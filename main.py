@@ -6,6 +6,7 @@ from lox.errors import err
 from lox.ast_printer import AstPrinter
 from lox.scanner import Scanner
 from lox.parser import Parser
+from lox.interpreter import Interpreter
 
 
 def run_file(filepath: str) -> None:
@@ -24,6 +25,8 @@ def run_file(filepath: str) -> None:
 
     if err.had_error:
         sys.exit(65)
+    if err.had_runtime_error:
+        sys.exit(70)
 
 
 def run_prompt() -> None:
@@ -47,6 +50,9 @@ def run_prompt() -> None:
         err.had_error = False
 
 
+interpreter = Interpreter()
+
+
 def run(source: str) -> None:
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
@@ -57,8 +63,7 @@ def run(source: str) -> None:
     if expression == None or err.had_error:
         return
 
-    printer = AstPrinter()
-    print(printer.print(expression))
+    interpreter.interpret(expression)
 
 
 def main():

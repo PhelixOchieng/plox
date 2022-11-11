@@ -1,33 +1,16 @@
 from lox import expr as Expr
 from lox.token import TokenType, Token
-from lox.errors import LoxRuntimeException
+from lox.errors import err, LoxRuntimeException
 
 
 class Interpreter(Expr.Visitor):
 
-    def _evaluate(self, expr: Expr.Expr):
-        return expr.accept(self)
-
-    def _is_truthy(self, value) -> bool:
-        if value == None:
-            return False
-        if isinstance(value, bool):
-            return bool(value)
-
-        return True
-
-    def _check_number_operand(self, operator: Token, operand) -> None:
-        if isinstance(operand, float):
-            return
-
-        raise LoxRuntimeException(operator, "Operand must be a number.")
-
-    def _check_number_operands(self, operator: Token, left, right) -> None:
-        # # TODO: Specify which operator exactly isn't the number
-        if isinstance(left, float) and isinstance(right, float):
-            return
-
-        raise LoxRuntimeException(operator, "Operands must be a number")
+    def interpret(self, expr: Expr.Expr):
+        try:
+            value = self._evaluate(expr)
+            print(self._stringify(value))
+        except LoxRuntimeException as e:
+            err.runtime_error(e)
 
     def visit_literal_expr(self, expr: Expr.Literal):
         return expr.value
@@ -88,3 +71,41 @@ class Interpreter(Expr.Visitor):
                 expr.operator, "Operands must be two numbers or two strings.")
 
         return None
+
+    def _stringify(self, value) -> str:
+        if value == None:
+            return 'nil'
+
+        if isinstance(value, float):
+            text = str(value)
+            if text.endswith('.0'):
+                text = text[0:len(text) - 2]
+
+            return text
+
+        return str(value)
+
+    def _evaluate(self, expr: Expr.Expr):
+        return expr.accept(self)
+
+    def _is_truthy(self, value) -> bool:
+        if value == None:
+            return False
+        if isinstance(value, bool):
+            return bool(value)
+
+        return True
+
+    def _check_number_operand(self, operator: Token, operand) -> None:
+        if isinstance(operand, float):
+            return
+
+        # # TODO: Specify type of operand received
+        raise LoxRuntimeException(operator, "Operand must be a number.")
+
+    def _check_number_operands(self, operator: Token, left, right) -> None:
+        if isinstance(left, float) and isinstance(right, float):
+            return
+
+        # TODO: Specify which operand exactly isn't the number
+        raise LoxRuntimeException(operator, "Operands must be a number.")

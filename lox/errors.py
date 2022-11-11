@@ -4,8 +4,16 @@ import sys
 from lox.token import Token, TokenType
 
 
+class LoxRuntimeException(RuntimeError):
+    def __init__(self, token: Token, err_message: str) -> None:
+        super().__init__(err_message)
+        self.message = err_message
+        self.token = token
+
+
 class Error:
     had_error = False
+    had_runtime_error = False
 
     def error(self, line: int, message: str) -> None:
         self.report(line, '', message)
@@ -27,11 +35,9 @@ class Error:
         else:
             self.report(token.line, f" at '{token.lexeme}'", err_msg)
 
+    def runtime_error(self, error: LoxRuntimeException) -> None:
+        sys.stderr.write(f'{error.message}\n[line {error.token.line}]\n')
+        self.had_runtime_error = True
+
 
 err = Error()
-
-
-class LoxRuntimeException(RuntimeError):
-    def __init__(self, token: Token, err_message: str) -> None:
-        super().__init__(err_message)
-        self.token = token
