@@ -37,9 +37,9 @@ def run_prompt() -> None:
         except EOFError:
             break
 
-        if line == 'exit()':
+        if line == '.exit':
             break
-        elif line == 'clear()':
+        elif line == '.clear':
             os.system('clear')
             continue
 
@@ -71,7 +71,10 @@ def main():
     if len(sys.argv) == 2:
         run_file(args.program)
     else:
-        run_prompt()
+        try:
+            run_prompt()
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == '__main__':

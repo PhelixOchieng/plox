@@ -29,3 +29,9 @@ class Error:
 
 
 err = Error()
+
+
+class LoxRuntimeException(RuntimeError):
+    def __init__(self, token: Token, err_message: str) -> None:
+        super().__init__(err_message)
+        self.token = token
