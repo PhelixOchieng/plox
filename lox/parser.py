@@ -3,7 +3,7 @@ from typing import List
 from lox import stmt
 from lox.errors import err
 from lox.token import Token, TokenType
-from lox.expr import Expr, Binary, Unary, Literal, Grouping
+from lox.expr import Expr, Binary, Unary, Literal, Grouping, Variable
 
 
 class ParserException(Exception):
@@ -19,7 +19,7 @@ class Parser:
     def parse(self) -> List[stmt.Stmt]:
         statements: List[stmt.Stmt] = []
         while not self._is_at_end():
-            statements.append(self._statement())
+            statements.append(self._declaration())
 
         return statements
 
@@ -76,17 +76,36 @@ class Parser:
 
             self._advance()
 
-    def _consume(self, token_type: TokenType, err_msg: str) -> None:
+    def _consume(self, token_type: TokenType, err_msg: str) -> Token:
         '''
         Checks to see if the current token to be consumed is of the expected type and consumes it
         If a different token is received throw an error
         '''
 
         if self._check(token_type):
-            self._advance()
-            return
+            return self._advance()
 
         raise self._error(self._peek(), err_msg)
+
+    def _declaration(self) -> stmt.Stmt:
+        try:
+            if self._match(TokenType.VAR):
+                return self._var_declaration()
+            return self._statement()
+        except ParserException as e:
+            self._synchronize()
+            return None
+
+    def _var_declaration(self) -> stmt.Stmt:
+        name = self._consume(TokenType.IDENTIFIER, 'Expect variable name.')
+
+        initializer: 'Expr|None' = None
+        if self._match(TokenType.EQUAL):
+            initializer = self._expression()
+
+        self._consume(TokenType.SEMICOLON,
+                      "Expect ';' after variable declaration.")
+        return stmt.Var(name, initializer)
 
     def _statement(self) -> stmt.Stmt:
         if self._match(TokenType.PRINT):
@@ -171,5 +190,8 @@ class Parser:
             self._consume(TokenType.RIGHT_PAREN,
                           "Expect ')' after expression.")
             return Grouping(expr)
+
+        if self._match(TokenType.IDENTIFIER):
+            return Variable(self._previous())
 
         raise self._error(self._peek(), 'Expect expression.')

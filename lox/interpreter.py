@@ -4,9 +4,11 @@ from lox import expr as Expr
 from lox import stmt
 from lox.token import TokenType, Token
 from lox.errors import err, LoxRuntimeException
+from lox.environment import Environment
 
 
 class Interpreter(Expr.Visitor, stmt.Visitor):
+    _environment = Environment()
 
     def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
@@ -15,14 +17,22 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
         except LoxRuntimeException as e:
             err.runtime_error(e)
 
+    def visit_var_stmt(self, stmt: stmt.Var) -> None:
+        value = None
+        if stmt.initializer is not None:
+            value = self._evaluate(stmt.initializer)
+
+        self._environment.define(stmt.name.lexeme, value)
+
+    def visit_variable_expr(self, expr: Expr.Variable):
+        return self._environment.get(expr.name)
+
     def visit_expression_stmt(self, stmt: stmt.Expression) -> None:
         self._evaluate(stmt.expression)
-        return None
 
     def visit_print_stmt(self, stmt: stmt.Print) -> None:
         value = self._evaluate(stmt.expression)
         print(self._stringify(value))
-        return None
 
     def visit_literal_expr(self, expr: Expr.Literal):
         return expr.value

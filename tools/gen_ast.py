@@ -85,7 +85,8 @@ def main():
         'Binary   -> left: Expr, operator: Token, right: Expr',
         'Grouping -> expression: Expr',
         'Literal  -> value: Any',
-        'Unary    -> operator: Token, right: Expr'
+        'Unary    -> operator: Token, right: Expr',
+        'Variable -> name: Token'
     ],
         imports='''\
 from typing import Any
@@ -97,9 +98,11 @@ from lox.token import Token
     define_ast(output_dir, 'Stmt', [
         'Expression  -> expression: Expr',
         'Print       -> expression: Expr',
+        "Var         -> name: Token, initializer: 'Expr|None'"
     ],
         imports='''\
 from lox.expr import Expr
+from lox.token import Token
 '''
     )
 
