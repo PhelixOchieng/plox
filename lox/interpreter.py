@@ -121,6 +121,11 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
         elif stmt.else_branch is not None:
             self._execute(stmt.else_branch)
 
+    def visit_while_stmt(self, stmt: stmt.While):
+        condition = self._evaluate(stmt.condition)
+        while self._is_truthy(condition):
+            self._execute(stmt.body)
+
     def _execute(self, statement: stmt.Stmt) -> None:
         statement.accept(self)
 

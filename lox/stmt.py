@@ -49,6 +49,15 @@ class Print(Stmt):
         return visitor.visit_print_stmt(self)
 
 
+class While(Stmt):
+    def __init__(self, condition: Expr, body: Stmt) -> None:
+        self.condition = condition
+        self.body = body
+
+    def accept(self, visitor: 'Visitor'):
+        return visitor.visit_while_stmt(self)
+
+
 class Var(Stmt):
     def __init__(self, name: Token, initializer: 'Expr|None') -> None:
         self.name = name
@@ -70,6 +79,9 @@ class Visitor:
         pass
 
     def visit_print_stmt(self, stmt: Print):
+        pass
+
+    def visit_while_stmt(self, stmt: While):
         pass
 
     def visit_var_stmt(self, stmt: Var):

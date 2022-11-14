@@ -110,6 +110,9 @@ class Parser:
     def _statement(self) -> stmt.Stmt:
         if self._match(TokenType.IF):
             return self._if_statement()
+        # Looping statements
+        if self._match(TokenType.WHILE):
+            return self._while_statement()
         if self._match(TokenType.PRINT):
             return self._print_statement()
         if self._match(TokenType.LEFT_BRACE):
@@ -142,6 +145,15 @@ class Parser:
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(value)
+
+    def _while_statement(self) -> stmt.Stmt:
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after while.")
+        condition = self._expression()
+        self._consume(TokenType.RIGHT_PAREN,
+                      "Expect ')' after while condition.")
+
+        body = self._statement()
+        return stmt.While(condition, body)
 
     def _expression_statement(self) -> stmt.Stmt:
         expression = self._expression()
