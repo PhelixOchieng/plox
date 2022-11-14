@@ -85,6 +85,7 @@ def main():
         'Binary   -> left: Expr, operator: Token, right: Expr',
         'Grouping -> expression: Expr',
         'Literal  -> value: Any',
+        'Logical  -> left: Expr, operator: Token, right: Expr',
         'Unary    -> operator: Token, right: Expr',
         'Variable -> name: Token',
         'Assign   -> name: Token, value: Expr'
@@ -99,6 +100,7 @@ from lox.token import Token
     define_ast(output_dir, 'Stmt', [
         'Block       -> statements: List[Stmt]',
         'Expression  -> expression: Expr',
+        "If          -> condition: Expr, then_branch: Stmt, else_branch: 'Stmt|None'",
         'Print       -> expression: Expr',
         "Var         -> name: Token, initializer: 'Expr|None'",
     ],
