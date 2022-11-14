@@ -8,7 +8,8 @@ from lox.environment import Environment
 
 
 class Interpreter(Expr.Visitor, stmt.Visitor):
-    _environment = Environment()
+    def __init__(self) -> None:
+        self._environment = Environment()
 
     def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
@@ -99,8 +100,22 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
 
         return None
 
+    def visit_block_stmt(self, stmt: stmt.Block):
+        self._execute_block(stmt.statements, Environment(self._environment))
+
     def _execute(self, statement: stmt.Stmt) -> None:
         statement.accept(self)
+
+    def _execute_block(self, statements: List[stmt.Stmt], env: Environment) -> None:
+        previous_env = self._environment
+
+        try:
+            self._environment = env
+
+            for statement in statements:
+                self._execute(statement)
+        finally:
+            self._environment = previous_env
 
     def _stringify(self, value) -> str:
         if value == None:

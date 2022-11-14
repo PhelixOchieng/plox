@@ -97,11 +97,14 @@ from lox.token import Token
     )
 
     define_ast(output_dir, 'Stmt', [
+        'Block       -> statements: List[Stmt]',
         'Expression  -> expression: Expr',
         'Print       -> expression: Expr',
-        "Var         -> name: Token, initializer: 'Expr|None'"
+        "Var         -> name: Token, initializer: 'Expr|None'",
     ],
         imports='''\
+from typing import List
+
 from lox.expr import Expr
 from lox.token import Token
 '''

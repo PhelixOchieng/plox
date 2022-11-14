@@ -1,3 +1,5 @@
+from typing import List
+
 from lox.expr import Expr
 from lox.token import Token
 
@@ -11,6 +13,14 @@ class Stmt(ABC):
     @abstractmethod
     def accept(self, visitor: 'Visitor') -> T:
         pass
+
+
+class Block(Stmt):
+    def __init__(self, statements: List[Stmt]) -> None:
+        self.statements = statements
+
+    def accept(self, visitor: 'Visitor'):
+        return visitor.visit_block_stmt(self)
 
 
 class Expression(Stmt):
@@ -39,6 +49,9 @@ class Var(Stmt):
 
 
 class Visitor:
+
+    def visit_block_stmt(self, stmt: Block):
+        pass
 
     def visit_expression_stmt(self, stmt: Expression):
         pass

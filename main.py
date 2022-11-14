@@ -19,7 +19,6 @@ def run_file(filepath: str) -> None:
             f"Can't open file '{filepath}': No such file or directory\n")
         sys.exit(1)
 
-    print(f'Run File: {filepath}')
     with open(filepath, mode='r') as file:
         run(file.read())
 
