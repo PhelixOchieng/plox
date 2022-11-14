@@ -69,7 +69,7 @@ class Scanner:
             return '\0'
         return self.source[self._current + 1]
 
-    def _scan_comments(self) -> None:
+    def _scan_slash(self) -> None:
         # TODO: Add support for block comments /* ... */ with support for nesting
         if self._match('/'):
             while self._peek() != '\n' and not self._is_at_end():
@@ -147,14 +147,8 @@ class Scanner:
             self._add_token(TokenType.COMMA)
         elif char == '.':
             self._add_token(TokenType.DOT)
-        elif char == '-':
-            self._add_token(TokenType.MINUS)
-        elif char == '+':
-            self._add_token(TokenType.PLUS)
         elif char == ';':
             self._add_token(TokenType.SEMICOLON)
-        elif char == '*':
-            self._add_token(TokenType.STAR)
         elif char == '!':
             self._add_token(TokenType.BANG_EQUAL if self._match(
                 '=') else TokenType.BANG)
@@ -167,8 +161,20 @@ class Scanner:
         elif char == '>':
             self._add_token(TokenType.GREATER_EQUAL if self._match(
                 '=') else TokenType.GREATER)
+
+        # Arithmetic operators
+        elif char == '-':
+            self._add_token(TokenType.MINUS)
+        elif char == '+':
+            self._add_token(TokenType.PLUS)
+        elif char == '*':
+            self._add_token(TokenType.STAR)
         elif char == '/':
-            self._scan_comments()
+            self._scan_slash()
+        elif char == '%':
+            self._add_token(TokenType.MODULO)
+
+        #
         elif char == ' ' or char == '\r' or char == '\t':
             # Ignore whitespace
             pass

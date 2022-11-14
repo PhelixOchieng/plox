@@ -101,6 +101,9 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
         if operator_type is TokenType.MINUS:
             self._check_number_operands(expr.operator, left, right)
             return float(left) - float(right)
+        if operator_type is TokenType.MODULO:
+            self._check_number_operands(expr.operator, left, right)
+            return float(left) % float(right)
         if operator_type is TokenType.PLUS:
             if isinstance(left, float) and isinstance(right, float):
                 return float(left) + float(right)
@@ -122,8 +125,7 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
             self._execute(stmt.else_branch)
 
     def visit_while_stmt(self, stmt: stmt.While):
-        condition = self._evaluate(stmt.condition)
-        while self._is_truthy(condition):
+        while self._is_truthy(self._evaluate(stmt.condition)):
             self._execute(stmt.body)
 
     def _execute(self, statement: stmt.Stmt) -> None:

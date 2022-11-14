@@ -13,8 +13,8 @@ class Environment:
         self._values[name] = value
 
     def assign(self, name: Token, value: Any) -> None:
-        value = self._values.get(name.lexeme)
-        if not value:
+        local_value = self._values.get(name.lexeme)
+        if local_value is None:
             if self._enclosing is not None:
                 self._enclosing.assign(name, value)
                 return
@@ -30,7 +30,7 @@ class Environment:
         looking for it up the chain of enclosing scopes
         '''
         value = self._values.get(name.lexeme)
-        if value:
+        if value is not None:
             return value
 
         if self._enclosing is not None:

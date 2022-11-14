@@ -12,11 +12,14 @@ class TokenType(Enum):
     RIGHT_BRACE = auto()
     COMMA = auto()
     DOT = auto()
-    MINUS = auto()
-    PLUS = auto()
     SEMICOLON = auto()
+
+    # Arithmentic tokens
     SLASH = auto()
     STAR = auto()
+    MINUS = auto()
+    PLUS = auto()
+    MODULO = auto()
 
     # One or two character tokens.
     BANG = auto()
