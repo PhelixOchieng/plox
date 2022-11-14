@@ -110,13 +110,16 @@ class Parser:
     def _statement(self) -> stmt.Stmt:
         if self._match(TokenType.IF):
             return self._if_statement()
+        if self._match(TokenType.LEFT_BRACE):
+            return stmt.Block(self._block())
+        if self._match(TokenType.FOR):
+            return self._for_statement()
+
         # Looping statements
         if self._match(TokenType.WHILE):
             return self._while_statement()
         if self._match(TokenType.PRINT):
             return self._print_statement()
-        if self._match(TokenType.LEFT_BRACE):
-            return stmt.Block(self._block())
 
         return self._expression_statement()
 
@@ -159,6 +162,40 @@ class Parser:
         expression = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Expression(expression)
+
+    def _for_statement(self) -> stmt.Stmt:
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after for.")
+
+        initializer: 'stmt.Stmt|None' = None
+        if self._match(TokenType.VAR):
+            initializer = self._var_declaration()
+        else:
+            initializer = self._expression_statement()
+
+        condition: 'Expr.Expr|None' = None
+        if not self._check(TokenType.SEMICOLON):
+            condition = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment: 'Expr.Expr|None' = None
+        if not self._check(TokenType.SEMICOLON):
+            increment = self._expression()
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body = self._statement()
+
+        if increment:
+            body = stmt.Block([body, stmt.Expression(increment)])
+
+        if condition is None:
+            condition = Expr.Literal(True)
+
+        body = stmt.While(condition, body)
+
+        if initializer:
+            body = stmt.Block([initializer, body])
+
+        return body
 
     def _expression(self) -> Expr.Expr:
         return self._assignment()
