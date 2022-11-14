@@ -1,4 +1,26 @@
-print "hello";
-print true;
-print nil;
-print 3 + 5;
+// simple statements
+print "Welcome to pyLox";
+
+// variable assignment
+var a = 23;
+var b = 24;
+
+// arithmetic operations
+var sum = a + b;
+print sum;
+print a + b;
+print a / 3;
+print 4 / 2;
+print "";
+
+// comparisons
+var equal = sum == a + b;
+var greater = sum > a + b - 1;
+var less = sum < a + b + 1;
+
+// should throw an error and say line 20
+print x;
+
+print equal;
+print greater;
+print less;
