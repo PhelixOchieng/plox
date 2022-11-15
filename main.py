@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import readline
 
 from lox.errors import err
 from lox.ast_printer import AstPrinter

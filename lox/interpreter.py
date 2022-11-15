@@ -1,15 +1,39 @@
-from typing import List
+from typing import List, Any
 
 from lox import expr as Expr
 from lox import stmt
+from lox.lox_callable import LoxCallable
 from lox.token import TokenType, Token
 from lox.errors import err, LoxRuntimeException
 from lox.environment import Environment
+from lox.lox_function import LoxFunction
+from lox.return_value import ReturnValue
+
+import time
+
+
+class Clock(LoxCallable):
+    '''
+    Return the current time in seconds since the Epoch.
+    Fractions of a second may be present if the system clock provides them.
+    '''
+
+    def arity(self) -> int:
+        return 0
+
+    def call(self, interpreter: 'Interpreter', arguments: List[Any]) -> float:
+        return time.time()
+
+    def __str__(self) -> str:
+        return '<built-in function call>'
 
 
 class Interpreter(Expr.Visitor, stmt.Visitor):
     def __init__(self) -> None:
-        self._environment = Environment()
+        self.globals = Environment()
+        self._environment = self.globals
+
+        self.globals.define('clock', Clock())
 
     def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
@@ -17,6 +41,10 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
                 self._execute(statement)
         except LoxRuntimeException as e:
             err.runtime_error(e)
+
+    def visit_function_stmt(self, stmt: stmt.Function) -> None:
+        function = LoxFunction(stmt)
+        self._environment.define(stmt.name.lexeme, function)
 
     def visit_var_stmt(self, stmt: stmt.Var) -> None:
         value = None
@@ -39,6 +67,13 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
     def visit_print_stmt(self, stmt: stmt.Print) -> None:
         value = self._evaluate(stmt.expression)
         print(self._stringify(value))
+
+    def visit_return_stmt(self, stmt: stmt.Return) -> None:
+        value = None
+        if stmt.value is not None:
+            value = self._evaluate(stmt.value)
+
+        raise ReturnValue(value)
 
     def visit_literal_expr(self, expr: Expr.Literal):
         return expr.value
@@ -115,8 +150,27 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
 
         return None
 
+    def visit_call_expr(self, expr: Expr.Call):
+        callee = self._evaluate(expr.callee)
+
+        arguments: List[Any] = []
+        for argument in expr.arguments:
+            arguments.append(self._evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeException(
+                expr.paren, 'Can only call functions and classes.')
+
+        function: LoxCallable = callee
+        if len(arguments) != function.arity():
+            raise LoxRuntimeException(
+                expr.paren, f'Expected {function.arity()} arguments but got {len(arguments)}.'
+            )
+
+        return function.call(self, arguments)
+
     def visit_block_stmt(self, stmt: stmt.Block):
-        self._execute_block(stmt.statements, Environment(self._environment))
+        self.execute_block(stmt.statements, Environment(self._environment))
 
     def visit_if_stmt(self, stmt: stmt.If) -> None:
         if self._is_truthy(self._evaluate(stmt.condition)):
@@ -131,7 +185,7 @@ class Interpreter(Expr.Visitor, stmt.Visitor):
     def _execute(self, statement: stmt.Stmt) -> None:
         statement.accept(self)
 
-    def _execute_block(self, statements: List[stmt.Stmt], env: Environment) -> None:
+    def execute_block(self, statements: List[stmt.Stmt], env: Environment) -> None:
         previous_env = self._environment
 
         try:

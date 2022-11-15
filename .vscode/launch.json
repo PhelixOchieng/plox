@@ -5,13 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "pyLox: Loops",
+      "name": "pyLox",
       "type": "python",
       "request": "launch",
       "program": "main.py",
       "console": "internalConsole",
       "args": [
-        "example/loops.lox"
+        "example/func.lox"
       ],
       "justMyCode": true
     }

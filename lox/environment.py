@@ -29,9 +29,12 @@ class Environment:
         Looks up the variable first from this (local) scope before
         looking for it up the chain of enclosing scopes
         '''
-        value = self._values.get(name.lexeme)
-        if value is not None:
-            return value
+        # print(self._values)
+        # print()
+        try:
+            return self._values[name.lexeme]
+        except KeyError:
+            pass
 
         if self._enclosing is not None:
             return self._enclosing.get(name)

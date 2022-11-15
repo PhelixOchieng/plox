@@ -83,6 +83,7 @@ def main():
     output_dir = args.dir
     define_ast(output_dir, "Expr", [
         'Binary   -> left: Expr, operator: Token, right: Expr',
+        'Call     -> callee: Expr, paren: Token, arguments: List[Expr]',
         'Grouping -> expression: Expr',
         'Literal  -> value: Any',
         'Logical  -> left: Expr, operator: Token, right: Expr',
@@ -91,7 +92,7 @@ def main():
         'Assign   -> name: Token, value: Expr'
     ],
         imports='''\
-from typing import Any
+from typing import Any, List
 
 from lox.token import Token
 '''
@@ -100,8 +101,10 @@ from lox.token import Token
     define_ast(output_dir, 'Stmt', [
         'Block       -> statements: List[Stmt]',
         'Expression  -> expression: Expr',
+        'Function    -> name: Token, params: List[Token], body: List[Stmt]',
         "If          -> condition: Expr, then_branch: Stmt, else_branch: 'Stmt|None'",
         'Print       -> expression: Expr',
+        "Return      -> keyword: Token, value: 'Expr|None'",
         'While       -> condition: Expr, body: Stmt',
         "Var         -> name: Token, initializer: 'Expr|None'",
     ],
