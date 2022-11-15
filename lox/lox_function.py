@@ -7,14 +7,15 @@ from lox.return_value import ReturnValue
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: Function) -> None:
+    def __init__(self, declaration: Function, closure: Environment) -> None:
+        self.closure = closure
         self._declaration = declaration
 
     def arity(self) -> int:
         return len(self._declaration.params)
 
     def call(self, interpreter, arguments: List[Any]):
-        env = Environment(interpreter.globals)
+        env = Environment(self.closure)
         for param, argument in zip(self._declaration.params, arguments):
             env.define(param.lexeme, argument)
 
